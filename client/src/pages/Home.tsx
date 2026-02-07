@@ -17,6 +17,7 @@ export default function Home() {
   const [_, setLocation] = useLocation();
   const { toast } = useToast();
   const [heartData, setHeartData] = useState<any>(null);
+  const [noInteractionCount, setNoInteractionCount] = useState(0);
   const { mutate, isPending } = useCreateResponse();
 
   useEffect(() => {
@@ -54,12 +55,19 @@ export default function Home() {
   };
 
   const handleNoInteraction = () => {
-    // Optional: playful toast or sound
-    // Keeping it clean for now
+    setNoInteractionCount(prev => prev + 1);
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen w-full flex flex-col items-center justify-center p-4 relative overflow-hidden bg-gradient-to-br from-pink-300 via-fuchsia-200 to-pink-400">
+      {/* Romantic candy-colored background pattern */}
+      <div className="absolute inset-0 opacity-40">
+        <div className="absolute top-20 left-5 w-80 h-80 bg-pink-400 rounded-full mix-blend-screen filter blur-3xl animate-pulse"></div>
+        <div className="absolute top-1/4 right-5 w-96 h-96 bg-fuchsia-300 rounded-full mix-blend-screen filter blur-3xl animate-pulse" style={{ animationDelay: "1s" }}></div>
+        <div className="absolute -bottom-20 left-1/3 w-80 h-80 bg-pink-300 rounded-full mix-blend-screen filter blur-3xl animate-pulse" style={{ animationDelay: "2s" }}></div>
+        <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-rose-300 rounded-full mix-blend-screen filter blur-3xl animate-pulse" style={{ animationDelay: "1.5s" }}></div>
+      </div>
+      
       <FloatingHearts />
 
       <motion.div
@@ -86,8 +94,9 @@ export default function Home() {
           <div className="flex flex-col md:flex-row gap-6 justify-center items-center min-h-[120px]">
             {/* YES Button */}
             <motion.div
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
+              animate={{ scale: 1 + noInteractionCount * 0.15 }}
+              whileHover={{ scale: 1.1 + noInteractionCount * 0.15 }}
+              whileTap={{ scale: 0.95 + noInteractionCount * 0.15 }}
             >
               <Button 
                 onClick={handleYes}
