@@ -1,24 +1,20 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import Lottie from "lottie-react";
 import confetti from "canvas-confetti";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FloatingHearts } from "@/components/FloatingHearts";
 import { NoButton } from "@/components/NoButton";
-import { useCreateResponse } from "@/hooks/use-responses";
-import { useToast } from "@/hooks/use-toast";
 
 // Lottie URL
 const heartAnimationUrl = "https://assets9.lottiefiles.com/packages/lf20_ot5gqdfc.json";
 
 export default function Home() {
   const [_, setLocation] = useLocation();
-  const { toast } = useToast();
   const [heartData, setHeartData] = useState<any>(null);
   const [noInteractionCount, setNoInteractionCount] = useState(0);
-  const { mutate, isPending } = useCreateResponse();
 
   useEffect(() => {
     fetch(heartAnimationUrl)
@@ -28,7 +24,7 @@ export default function Home() {
   }, []);
 
   const handleYes = () => {
-    // 1. Trigger confetti
+    // Trigger confetti
     confetti({
       particleCount: 150,
       spread: 70,
@@ -36,22 +32,10 @@ export default function Home() {
       colors: ['#ff0000', '#ffa500', '#ffff00', '#008000', '#0000ff', '#4b0082', '#ee82ee']
     });
 
-    // 2. Save response
-    mutate(
-      { visitorName: "My Valentine", accepted: true },
-      {
-        onSuccess: () => {
-          // 3. Navigate after short delay to let confetti pop
-          setTimeout(() => {
-            setLocation("/success");
-          }, 800);
-        },
-        onError: () => {
-          // Fallback if API fails, still show success because love shouldn't wait on servers
-          setLocation("/success");
-        }
-      }
-    );
+    // Navigate after short delay to let confetti play
+    setTimeout(() => {
+      setLocation("/success");
+    }, 800);
   };
 
   const handleNoInteraction = () => {
@@ -100,10 +84,9 @@ export default function Home() {
             >
               <Button 
                 onClick={handleYes}
-                disabled={isPending}
                 className="text-2xl px-10 py-8 rounded-full bg-primary hover:bg-primary/90 text-white shadow-xl shadow-primary/30 transition-all font-display"
               >
-                {isPending ? "Yes!..." : "YES! ❤️"}
+                YES! ❤️
               </Button>
             </motion.div>
 
