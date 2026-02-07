@@ -30,49 +30,56 @@ export function NoButton({ onInteraction }: NoButtonProps) {
   const moveButton = () => {
     if (!buttonRef.current) return;
 
-    // Get viewport dimensions
-    const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
-    
-    // Button dimensions (approximate if not mounted, but ref helps)
-    const btnWidth = buttonRef.current.offsetWidth || 100;
-    const btnHeight = buttonRef.current.offsetHeight || 40;
+    // Get current button position and dimensions
+    const rect = buttonRef.current.getBoundingClientRect();
+    const btnWidth = rect.width;
+    const btnHeight = rect.height;
 
-    // Calculate safe area (padding from edges)
-    const padding = 50;
-    const maxX = viewportWidth - btnWidth - padding;
-    const maxY = viewportHeight - btnHeight - padding;
+    // Viewport dimensions
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+
+    // Safe padding from viewport edges
+    const padding = 20;
+
+    // Calculate the range of movement to keep the button within the viewport
+    // The motion.div is positioned relative to its initial position.
+    // We need to find the initial center position to calculate bounds correctly.
+    // However, a simpler way is to just use the current position and calculate a jump 
+    // that doesn't exceed the viewport.
+    
+    // Let's use absolute positioning relative to the viewport for the "jump"
+    // and translate it back to the relative motion coordinates.
+    
+    const maxX = vw - btnWidth - padding;
+    const maxY = vh - btnHeight - padding;
     const minX = padding;
     const minY = padding;
 
-    // Generate new random coordinates
-    const newX = Math.random() * (maxX - minX) + minX;
-    const newY = Math.random() * (maxY - minY) + minY;
-    
-    // Calculate vector to move AWAY from center or current position slightly unpredictable
-    // Actually, random position is usually chaotic enough and funnier
-    
-    // Adjust relative to current position to make it absolute on screen
-    // Framer motion 'animate' uses transform, so we need relative or absolute positioning logic
-    // Using absolute positioning for the container is easier for "running away" around the whole screen
-    
-    // However, the button is initially in a flow. 
-    // Trick: We'll set the button to 'fixed' position once it starts moving? 
-    // Or just translate it wildly.
-    
-    // Let's use simple random translation values that are large enough to jump
-    // But constrained to stay on screen.
-    // Actually, easier approach: Calculate random position within window bounds
-    // relative to the button's initial position is hard.
-    
-    // Better approach: Random X/Y in viewport, minus offset of container center?
-    // Let's just use a large constrained random range relative to start.
-    
-    const randomX = (Math.random() - 0.5) * 500; 
-    const randomY = (Math.random() - 0.5) * 500;
+    // Target absolute position in viewport
+    const targetAbsX = Math.random() * (maxX - minX) + minX;
+    const targetAbsY = Math.random() * (maxY - minY) + minY;
 
-    // Update state
-    setPosition({ x: randomX, y: randomY });
+    // Calculate relative movement from the initial position
+    // We can reset the motion div to be fixed or use a container ref.
+    // Simpler: The button's initial position + translation = current position.
+    // Translation = current position - initial position.
+    
+    // For this specific design, let's just use a very wide random range 
+    // but subtract the button's own offset if we want to be precise.
+    // Actually, setting state to random values between -window.innerWidth/2 and window.innerWidth/2
+    // is roughly what was there. 
+    
+    // Let's fix it by using a better bounding box calculation.
+    // Since the button is centered, its (0,0) is approximately (vw/2, vh/2).
+    
+    const centerX = vw / 2;
+    const centerY = vh / 2;
+    
+    const relativeX = targetAbsX - centerX + (btnWidth / 2);
+    const relativeY = targetAbsY - centerY + (btnHeight / 2);
+
+    setPosition({ x: relativeX, y: relativeY });
     
     // Cycle phrases
     setPhraseIndex((prev) => (prev + 1) % phrases.length);
